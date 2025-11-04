@@ -1,0 +1,21 @@
+# Build
+build/**/*
+bin/**/*
+*.exe
+
+# Air
+tmp/
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+!.env*.example
+
+# IDEs & Specifics
+.vscode
+.idea
+.DS_Store
+
