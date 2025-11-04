@@ -47,6 +47,13 @@ func (s *Stats) IncDeviceRequests() {
 	atomic.AddUint64(&s.DeviceRequests, 1)
 }
 
+func (s *Stats) TotalRequests() uint64 {
+	var total uint64
+	atomic.AddUint64(&total, s.DeviceRequests)
+	atomic.AddUint64(&total, s.ViewRequests)
+	return total
+}
+
 func (s *Stats) Snapshot() map[string]any {
 	return map[string]any{
 		"view_requests":   atomic.LoadUint64(&s.ViewRequests),

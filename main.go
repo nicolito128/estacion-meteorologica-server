@@ -35,7 +35,7 @@ func main() {
 
 func HandleRoot(stats *Stats) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		stats.IncRequests()
+		stats.IncViewRequests()
 		switch r.Method {
 		case "GET":
 			http.FileServer(http.Dir("public/")).ServeHTTP(w, r)
