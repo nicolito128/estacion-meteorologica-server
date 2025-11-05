@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-var addr = flag.String("addr", ":8080", "HTTP network address")
-
-// ename = flag.String("ename", "ESPDevice", "Expected name for ESP devices")
-// pass  = flag.String("pass", "secret", "Password for ESP devices")
+var (
+	addr = flag.String("addr", ":8080", "Puerto TCP al que escuchar")
+	pass = flag.String("pass", "secret", "Contraseña que debe conocer el dispositivo IoT")
+)
 
 func main() {
 	flag.Parse()
@@ -22,7 +22,6 @@ func main() {
 	}
 
 	stats := NewStats()
-	// device := NewDevice()
 
 	// Creamos el servidor principal que servirá nuestras peticiones HTTP
 	root := http.NewServeMux()
