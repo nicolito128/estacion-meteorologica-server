@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var addr = flag.String("addr", ":8080", "HTTP network address")
@@ -21,14 +22,18 @@ func main() {
 	}
 
 	stats := NewStats()
-	device := NewDevice()
+	// device := NewDevice()
 
-	http.HandleFunc("/", HandleRoot(stats))
-	http.HandleFunc("/stats", HandleStats(stats))
-	http.HandleFunc("/ping", HandlePing(device))
+	// Creamos el servidor principal que servirá nuestras peticiones HTTP
+	root := http.NewServeMux()
+
+	// Asignamos los manejadores de las rutas
+	root.HandleFunc("/", HandleRoot(stats))
+	root.HandleFunc("/stats", HandleStats(stats))
+	root.HandleFunc("/ping", HandlePing(stats))
 
 	log.Printf("Iniciando servidor en http://127.0.0.1%s/ - CTRL + C para interrumpir", *addr)
-	if err := http.ListenAndServe(*addr, nil); err != nil {
+	if err := http.ListenAndServe(*addr, root); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
 }
@@ -41,8 +46,21 @@ func HandleRoot(stats *Stats) http.HandlerFunc {
 			http.FileServer(http.Dir("public/")).ServeHTTP(w, r)
 
 		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			fmt.Fprintf(w, "Method not allowed")
+			WriteString(w, http.StatusMethodNotAllowed, "Method not allowed")
+		}
+	}
+}
+
+func HandlePing(stats *Stats) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			data := map[string]int64{"ping": time.Since(stats.StartTime).Milliseconds()}
+			_, err := WriteJSON(w, http.StatusOK, data)
+			if err != nil {
+				WriteError(w, http.StatusInternalServerError, fmt.Errorf("error trying to marshal data: %v", err))
+				return
+			}
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync/atomic"
@@ -13,16 +12,11 @@ func HandleStats(stats *Stats) http.HandlerFunc {
 		switch r.Method {
 		case "GET":
 			snaps := stats.Snapshot()
-			buff, err := json.Marshal(snaps)
+			_, err := WriteJSON(w, http.StatusOK, snaps)
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				fmt.Fprintf(w, "Error generating stats: %v", err)
+				WriteError(w, http.StatusInternalServerError, fmt.Errorf("error trying to marshal stats data: %v", err))
 				return
 			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintf(w, "%s", string(buff))
 		}
 	}
 }
