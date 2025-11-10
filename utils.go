@@ -26,10 +26,6 @@ func WriteJSONBlob(w http.ResponseWriter, status int, data []byte) (int, error) 
 	return fmt.Fprintf(w, "%s", string(data))
 }
 
-func WriteError(w http.ResponseWriter, status int, err error) (int, error) {
-	return WriteString(w, status, err.Error(), []any{}...)
-}
-
 func WriteJSONError(w http.ResponseWriter, status int, err error) (int, error) {
 	return WriteJSONBlob(w, status, fmt.Appendf([]byte{}, `{"error": "%s"}`, err.Error()))
 }

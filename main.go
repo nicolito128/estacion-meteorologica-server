@@ -9,10 +9,9 @@ import (
 	"time"
 )
 
-var (
-	addr = flag.String("addr", ":8080", "Puerto TCP al que escuchar")
-	pass = flag.String("pass", "secret", "Contraseña que debe conocer el dispositivo IoT")
-)
+var addr = flag.String("addr", ":8080", "Puerto TCP al que escuchar")
+
+// pass = flag.String("pass", "secret", "Contraseña que debe conocer el dispositivo IoT")
 
 func main() {
 	flag.Parse()
@@ -30,6 +29,7 @@ func main() {
 	root.HandleFunc("/", HandleRoot(stats))
 	root.HandleFunc("/stats", HandleStats(stats))
 	root.HandleFunc("/ping", HandlePing(stats))
+	root.HandleFunc("/measurement", HandleMeasurement())
 
 	log.Printf("Iniciando servidor en http://127.0.0.1%s/ - CTRL + C para interrumpir", *addr)
 	if err := http.ListenAndServe(*addr, root); err != nil {
@@ -45,7 +45,7 @@ func HandleRoot(stats *Stats) http.HandlerFunc {
 			http.FileServer(http.Dir("public/")).ServeHTTP(w, r)
 
 		default:
-			WriteString(w, http.StatusMethodNotAllowed, "Method not allowed")
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	}
 }
@@ -57,7 +57,7 @@ func HandlePing(stats *Stats) http.HandlerFunc {
 			data := map[string]int64{"ping": time.Since(stats.StartTime).Milliseconds()}
 			_, err := WriteJSON(w, http.StatusOK, data)
 			if err != nil {
-				WriteError(w, http.StatusInternalServerError, fmt.Errorf("error trying to marshal data: %v", err))
+				http.Error(w, fmt.Errorf("error trying to marshal data: %v", err).Error(), http.StatusInternalServerError)
 				return
 			}
 		}

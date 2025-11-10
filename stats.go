@@ -14,7 +14,7 @@ func HandleStats(stats *Stats) http.HandlerFunc {
 			snaps := stats.Snapshot()
 			_, err := WriteJSON(w, http.StatusOK, snaps)
 			if err != nil {
-				WriteError(w, http.StatusInternalServerError, fmt.Errorf("error trying to marshal stats data: %v", err))
+				http.Error(w, fmt.Errorf("error trying to marshal stats data: %v", err).Error(), http.StatusInternalServerError)
 				return
 			}
 		}
