@@ -1,4 +1,7 @@
-package main
+/*
+Package uhttp stands for Utility HTTP and provides helper functions.
+*/
+package uhttp
 
 import (
 	"encoding/json"

@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
-	"time"
+
+	"github.com/nicolito128/estacion-meteorologica-server/internal/handlers"
+	"github.com/nicolito128/estacion-meteorologica-server/internal/stats"
 )
 
 var addr = flag.String("addr", ":8080", "Puerto TCP al que escuchar")
@@ -20,46 +21,18 @@ func main() {
 		*addr = ":" + *addr
 	}
 
-	stats := NewStats()
+	shared := &handlers.SharedContext{
+		Stats: stats.NewStats(),
+	}
 
 	// Creamos el servidor principal que servirá nuestras peticiones HTTP
 	root := http.NewServeMux()
 
 	// Asignamos los manejadores de las rutas
-	root.HandleFunc("/", HandleRoot(stats))
-	root.HandleFunc("/stats", HandleStats(stats))
-	root.HandleFunc("/ping", HandlePing(stats))
-	root.HandleFunc("/measurement", HandleMeasurement())
+	handlers.SetupHandlers(root, shared)
 
 	log.Printf("Iniciando servidor en http://127.0.0.1%s/ - CTRL + C para interrumpir", *addr)
 	if err := http.ListenAndServe(*addr, root); err != nil {
 		log.Fatalf("Error starting server: %v", err)
-	}
-}
-
-func HandleRoot(stats *Stats) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		stats.IncViewRequests()
-		switch r.Method {
-		case "GET":
-			http.FileServer(http.Dir("public/")).ServeHTTP(w, r)
-
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	}
-}
-
-func HandlePing(stats *Stats) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			data := map[string]int64{"ping": time.Since(stats.StartTime).Milliseconds()}
-			_, err := WriteJSON(w, http.StatusOK, data)
-			if err != nil {
-				http.Error(w, fmt.Errorf("error trying to marshal data: %v", err).Error(), http.StatusInternalServerError)
-				return
-			}
-		}
 	}
 }

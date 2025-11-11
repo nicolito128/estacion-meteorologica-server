@@ -1,6 +1,6 @@
 # Build
-build/**/*
-bin/**/*
+build/
+bin/
 *.exe
 
 # Air
@@ -15,11 +15,10 @@ logs/
 !.env*.example
 
 # Local data
-data.csv
-!data.csv.example
+!data/**/*.example
+data/**/*.csv
 
 # IDEs & Specifics
 .vscode
 .idea
 .DS_Store
-

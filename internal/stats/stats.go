@@ -1,25 +1,12 @@
-package main
+/*
+Package stats provides functionality to collect and report server statistics.
+*/
+package stats
 
 import (
-	"fmt"
-	"net/http"
 	"sync/atomic"
 	"time"
 )
-
-func HandleStats(stats *Stats) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			snaps := stats.Snapshot()
-			_, err := WriteJSON(w, http.StatusOK, snaps)
-			if err != nil {
-				http.Error(w, fmt.Errorf("error trying to marshal stats data: %v", err).Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-}
 
 type Stats struct {
 	StartTime      time.Time
