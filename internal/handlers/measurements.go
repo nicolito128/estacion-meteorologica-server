@@ -13,48 +13,26 @@ import (
 	"github.com/nicolito128/estacion-meteorologica-server/internal/uhttp"
 )
 
-type MeasurementKind int
+type MeasurementKind string
 
 const (
 	// Dato desconocido (no debería ser necesario usarlo)
-	UnknownMeasurement MeasurementKind = iota
-
+	UnknownMeasurement MeasurementKind = "unknown"
 	// Obtenido por el sensor DHT22
-	TempratureMeasurement
+	TempratureMeasurement MeasurementKind = "temperature"
 	// Obtenido por el sensor DHT22
-	HumidityMeasurement
+	HumidityMeasurement MeasurementKind = "humidity"
 	// Obtenido por el pluviómetro
-	PrecipitationMeasurement
+	PrecipitationMeasurement MeasurementKind = "precipitation"
 	// Obtenido por el anemómetro
-	WindSpeedMeasurement
+	WindSpeedMeasurement MeasurementKind = "wind_speed"
 	// Obtenido por el sensor de presión barométrica
-	SeaLevelMeasurement
+	SeaLevelMeasurement MeasurementKind = "sea_level"
 	// Obtenido por el sensor de presión barométrica
-	PressureMeasurement
+	PressureMeasurement MeasurementKind = "pressure"
 	// Obtenido por el sensor UV
-	UVMeasurement
+	UVMeasurement MeasurementKind = "uv"
 )
-
-func (mk MeasurementKind) String() string {
-	switch mk {
-	case TempratureMeasurement:
-		return "temperature"
-	case HumidityMeasurement:
-		return "humidity"
-	case PrecipitationMeasurement:
-		return "precipitation"
-	case WindSpeedMeasurement:
-		return "wind_speed"
-	case SeaLevelMeasurement:
-		return "sea_level"
-	case PressureMeasurement:
-		return "pressure"
-	case UVMeasurement:
-		return "uv"
-	default:
-		return "unknown"
-	}
-}
 
 const (
 	TemperatureFile   string = "data/temperature.csv"
@@ -68,13 +46,13 @@ const (
 
 // Measurement representa una medición genérica de cualquier tipo.
 type Measurement struct {
-	Timestamp string          `json:"timestamp"`
-	Kind      MeasurementKind `json:"kind"`
-	Value     float64         `json:"value"`
+	Timestamp string  `json:"timestamp"`
+	Value     float64 `json:"value"`
 }
 
 type MeasurementsDataResponse struct {
-	Data []Measurement `json:"data"`
+	Kind MeasurementKind `json:"kind"`
+	Data []Measurement   `json:"data"`
 }
 
 type NewMeasurementDataRequest struct {
@@ -92,19 +70,19 @@ func HandleMeasurements() http.HandlerFunc {
 	}
 }
 
-// TODO: convertir el proceso del GET y POST en una función genérica y separada de todo esto
-func HandleTemperature() http.HandlerFunc {
-	createFileIfNotExists(TempratureMeasurement)
+func genericMeasurementHandler(kind MeasurementKind) http.HandlerFunc {
+	createFileIfNotExists(kind)
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
-			data, err := ucsv.ReadAll(TemperatureFile)
+			data, err := ucsv.ReadAll(getFilepathForMeasurementKind(kind))
 			if err != nil {
 				http.Error(w, fmt.Errorf("error trying to read temperature file: %v", err).Error(), http.StatusInternalServerError)
 				return
 			}
 
 			res := MeasurementsDataResponse{
+				Kind: kind,
 				Data: make([]Measurement, 0),
 			}
 
@@ -115,7 +93,7 @@ func HandleTemperature() http.HandlerFunc {
 					http.Error(w, fmt.Errorf("error trying to convert measurement value to float64: %v", err).Error(), http.StatusInternalServerError)
 					return
 				}
-				res.Data = append(res.Data, Measurement{Timestamp: timestamp, Kind: TempratureMeasurement, Value: value})
+				res.Data = append(res.Data, Measurement{Timestamp: timestamp, Value: value})
 			}
 
 			uhttp.WriteJSON(w, http.StatusOK, res)
@@ -134,7 +112,7 @@ func HandleTemperature() http.HandlerFunc {
 			value := strconv.FormatFloat(body.Value, 'f', 4, 64)
 			record := []string{timestamp, r.RemoteAddr, value}
 
-			err = ucsv.WriteLine(TemperatureFile, record)
+			err = ucsv.WriteLine(getFilepathForMeasurementKind(kind), record)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -148,38 +126,37 @@ func HandleTemperature() http.HandlerFunc {
 	}
 }
 
+func HandleTemperature() http.HandlerFunc {
+	return genericMeasurementHandler(TempratureMeasurement)
+}
+
 func HandleHumidity() http.HandlerFunc {
-	createFileIfNotExists(HumidityMeasurement)
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return genericMeasurementHandler(HumidityMeasurement)
 }
 
 func HandlePrecipitation() http.HandlerFunc {
-	createFileIfNotExists(PrecipitationMeasurement)
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return genericMeasurementHandler(PrecipitationMeasurement)
 }
 
 func HandleWindSpeed() http.HandlerFunc {
-	createFileIfNotExists(WindSpeedMeasurement)
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return genericMeasurementHandler(WindSpeedMeasurement)
 }
 
 func HandleSeaLevel() http.HandlerFunc {
-	createFileIfNotExists(SeaLevelMeasurement)
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return genericMeasurementHandler(SeaLevelMeasurement)
 }
 
 func HandlePressure() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return genericMeasurementHandler(PressureMeasurement)
 }
 
 func HandleUV() http.HandlerFunc {
-	createFileIfNotExists(UVMeasurement)
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return genericMeasurementHandler(UVMeasurement)
 }
 
-func createFileIfNotExists(measurementKind MeasurementKind) error {
+func getFilepathForMeasurementKind(kind MeasurementKind) string {
 	var path string
-	switch measurementKind {
+	switch kind {
 	case TempratureMeasurement:
 		path = TemperatureFile
 	case HumidityMeasurement:
@@ -195,6 +172,12 @@ func createFileIfNotExists(measurementKind MeasurementKind) error {
 	case UVMeasurement:
 		path = UVFile
 	}
+
+	return path
+}
+
+func createFileIfNotExists(kind MeasurementKind) error {
+	path := getFilepathForMeasurementKind(kind)
 
 	_, err := os.Stat(path)
 	if err != nil {
