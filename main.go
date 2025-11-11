@@ -12,8 +12,6 @@ import (
 
 var addr = flag.String("addr", ":8080", "Puerto TCP al que escuchar")
 
-// pass = flag.String("pass", "secret", "Contraseña que debe conocer el dispositivo IoT")
-
 func main() {
 	flag.Parse()
 
@@ -21,6 +19,7 @@ func main() {
 		*addr = ":" + *addr
 	}
 
+	// Los datos compartidos entre los manejadores
 	shared := &handlers.SharedContext{
 		Stats: stats.NewStats(),
 	}
@@ -32,6 +31,7 @@ func main() {
 	handlers.SetupHandlers(root, shared)
 
 	log.Printf("Iniciando servidor en http://127.0.0.1%s/ - CTRL + C para interrumpir", *addr)
+	// TODO: Deberíamos manejar TLS en algún momento
 	if err := http.ListenAndServe(*addr, root); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}

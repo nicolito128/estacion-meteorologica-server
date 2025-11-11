@@ -1,8 +1,28 @@
 # Estación Meteorológica Server
 
-Servidor para almacenar la información recolectada por el ESP8266 en el proyecto de estación meteorológica.
+Servidor para el proyecto de Estación Meteorológica del Sirolli
 
 ## Requerimientos
 
-- Go 1.25
+- [Go >= 1.25](https://go.dev/dl/)
+
+### Opcionales
+
+- [air](https://github.com/air-verse/air)
+
+## Arquitectura
+
+Arquitectura del servidor y los endpoints.
+
+## Ejecutar
+
+Cómo ejecutar el servidor.
+
+## Agradecimientos
+
+Agradecimientos.
+
+## Referencias
+
+Listar referencias útiles.
 

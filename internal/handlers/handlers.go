@@ -1,3 +1,6 @@
+/*
+Package handlers provides HTTP handlers for the weather station server.
+*/
 package handlers
 
 import (
@@ -19,6 +22,7 @@ func SetupHandlers(root *http.ServeMux, store *SharedContext) {
 	root.HandleFunc("/measurements", HandleMeasurements())
 	root.HandleFunc("/measurements/temperature", HandleTemperature())
 	root.HandleFunc("/measurements/humidity", HandleHumidity())
+	root.HandleFunc("/measurements/precipitation", HandlePrecipitation())
 	root.HandleFunc("/measurements/wind-speed", HandleWindSpeed())
 	root.HandleFunc("/measurements/sea-level", HandleSeaLevel())
 	root.HandleFunc("/measurements/pressure", HandlePressure())
