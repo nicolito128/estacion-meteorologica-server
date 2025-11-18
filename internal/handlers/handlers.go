@@ -19,7 +19,6 @@ func SetupHandlers(root *http.ServeMux, store *SharedContext) {
 	root.HandleFunc("/stats", HandleStats(store))
 	root.HandleFunc("/ping", HandlePing(store))
 
-	root.HandleFunc("/measurements", HandleMeasurements())
 	root.HandleFunc("/measurements/temperature", HandleTemperature())
 	root.HandleFunc("/measurements/humidity", HandleHumidity())
 	root.HandleFunc("/measurements/precipitation", HandlePrecipitation())

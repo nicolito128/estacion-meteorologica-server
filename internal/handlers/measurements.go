@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -47,6 +48,7 @@ const (
 // Measurement representa una medición genérica de cualquier tipo.
 type Measurement struct {
 	Timestamp string  `json:"timestamp"`
+	Host      string  `json:"host"`
 	Value     float64 `json:"value"`
 }
 
@@ -55,19 +57,8 @@ type MeasurementsDataResponse struct {
 	Data []Measurement   `json:"data"`
 }
 
-type NewMeasurementDataRequest struct {
+type NewMeasurementDataBody struct {
 	Value float64 `json:"value"`
-}
-
-func HandleMeasurements() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	}
 }
 
 func genericMeasurementHandler(kind MeasurementKind) http.HandlerFunc {
@@ -87,19 +78,22 @@ func genericMeasurementHandler(kind MeasurementKind) http.HandlerFunc {
 			}
 
 			for _, line := range data[1:] {
-				timestamp := line[0]
-				value, err := strconv.ParseFloat(line[2], 64)
-				if err != nil {
-					http.Error(w, fmt.Errorf("error trying to convert measurement value to float64: %v", err).Error(), http.StatusInternalServerError)
-					return
+				if len(line) == 3 {
+					timestamp := line[0]
+					host := line[1]
+					value, err := strconv.ParseFloat(line[2], 64)
+					if err != nil {
+						http.Error(w, fmt.Errorf("error trying to convert measurement value to float64: %v", err).Error(), http.StatusInternalServerError)
+						return
+					}
+					res.Data = append(res.Data, Measurement{Timestamp: timestamp, Host: host, Value: value})
 				}
-				res.Data = append(res.Data, Measurement{Timestamp: timestamp, Value: value})
 			}
 
 			uhttp.WriteJSON(w, http.StatusOK, res)
 
 		case "POST":
-			var body NewMeasurementDataRequest
+			var body NewMeasurementDataBody
 
 			decoder := json.NewDecoder(r.Body)
 			err := decoder.Decode(&body)
@@ -118,6 +112,7 @@ func genericMeasurementHandler(kind MeasurementKind) http.HandlerFunc {
 				return
 			}
 
+			log.Printf("New %s measurement: %s from %s", kind, value, r.RemoteAddr)
 			uhttp.WriteString(w, http.StatusOK, "OK")
 
 		default:

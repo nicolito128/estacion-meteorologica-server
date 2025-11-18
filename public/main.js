@@ -1,14 +1,74 @@
 const counter = document.getElementById("ping");
 
+const temperatureDisplay = document.getElementById("tempBody");
+const tempAvgElem = document.getElementById("tempAvg");
+const tempMinElem = document.getElementById("tempMin");
+const tempMaxElem = document.getElementById("tempMax");
+
+const humidityDisplay = document.getElementById("rhBody");
+const rhAvgElem = document.getElementById("rhAvg");
+const rhMinElem = document.getElementById("rhMin");
+const rhMaxElem = document.getElementById("rhMax");
+
 window.onload = start;
 
 async function start() {
-    setIntervalPings();
+    handleInterval(updateMeasurements, 5000);
+    handleInterval(updatePing, 1000);
 }
 
-async function setIntervalPings() {
-    updatePing();
-    window.pingIntervalId = setInterval(updatePing, 1000);
+async function updateMeasurements() {
+    console.log("Updating measurements...");
+    try {
+        const results = await Promise.all([
+            fetch("/measurements/temperature").then(res => res.json()),
+            fetch("/measurements/humidity").then(res => res.json()),
+        ]).catch(e => { throw e });
+
+        const temperatures = results[0]?.data;
+        const humidities = results[1]?.data;
+
+        if (temperatures && temperatures.length > 0) {
+            let total = 0.0;
+            let minValue = temperatures[0]?.value ?? 999;
+            let maxValue = temperatures[0]?.value ?? -999;
+            for (let i = temperatures.length - 1; i >= 0; i--) {
+                const elem = temperatures[i];
+                if (minValue > elem.value) minValue = elem.value;
+                if (maxValue < elem.value) maxValue = elem.value;
+                total += elem.value;
+                temperatureDisplay.innerHTML += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
+            }
+            tempAvgElem.textContent = (total / temperatures.length).toFixed(2);
+            tempMinElem.textContent = minValue.toFixed(2);
+            tempMaxElem.textContent = maxValue.toFixed(2);
+        }
+
+        if (humidities && humidities.length > 0) {
+            let total = 0.0;
+            let minValue = humidities[1]?.value ?? 999;
+            let maxValue = humidities[1]?.value ?? -999;
+            for (let i = humidities.length - 1; i >= 0; i--) {
+                const elem = humidities[i];
+                if (minValue > elem.value) minValue = elem.value;
+                if (maxValue < elem.value) maxValue = elem.value;
+                total += parseFloat(elem.value);
+                humidityDisplay.innerHTML += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
+            }
+            rhAvgElem.textContent = (total / humidities.length).toFixed(2);
+            rhMinElem.textContent = minValue.toFixed(2);
+            rhMaxElem.textContent = maxValue.toFixed(2);
+        }
+
+    } catch (e) {
+        console.error(e);
+        clearInterval(window[`_updateMeasurements_interval`]);
+    }
+}
+
+async function handleInterval(callback, time) {
+    callback();
+    window[`_${callback.name}_interval`] = setInterval(callback, time);
 }
 
 async function updatePing() {
@@ -28,7 +88,7 @@ async function updatePing() {
         counter.textContent = parseMillisecondsIntoReadableTime(data.ping);
     } catch (e) {
         console.error(e);
-        clearInterval(window.pingIntervalId);
+        clearInterval(window[`_updatePing_interval`]);
     }
 }
 

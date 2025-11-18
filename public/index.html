@@ -5,12 +5,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Estación Meteorológica | Proyecto IoT para Robótica y Automatización</title>
+    <style>
+        .table-container {
+            overflow-y: auto;
+            max-height: 300px;
+            width: 100%;
+            display: inline-block;
+        }
+
+        table {
+            border: 1px solid gray;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid gray;
+            text-align: center;
+            width: 33%;
+            padding: 5px;
+        }
+    </style>
 </head>
 
 <body>
     <h1>Estación Meteorológica Sirolli (Gral. Güemes)</h1>
 
-    Uptime: <span id="ping">00:00:00</span>
+    <p>
+        Uptime: <span id="ping">00:00:00</span>
+    </p>
+
+    <section id="tempSection" class="display-section">
+        <h2>Temperaturas</h2>
+        <p>
+            Promedio actual: <span id="tempAvg">--</span> °C |
+            Minimo registrado: <span id="tempMin">--</span> °C |
+            Máximo registrado: <span id="tempMax">--</span> °C
+        </p>
+
+        <div class="table-container">
+            <table id="tempTable">
+                <thead>
+                    <th>Tiempo</th>
+                    <th>Host</th>
+                    <th>°C</th>
+                </thead>
+                <tbody id="tempBody">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="rhSection" class="display-section">
+        <h2>Humedades Relativas</h2>
+        <p>
+            Promedio actual: <span id="rhAvg">--</span> %RH |
+            Minimo registrado: <span id="rhMin">--</span> %RH |
+            Máximo registrado: <span id="rhMax">--</span> %RH
+        </p>
+
+        <div class="table-container">
+            <table id="rhTable">
+                <thead>
+                    <th>Tiempo</th>
+                    <th>Host</th>
+                    <th>RH%</th>
+                </thead>
+                <tbody id="rhBody"></tbody>
+            </table>
+        </div>
+    </section>
 
     <script src="./main.js"></script>
 </body>
