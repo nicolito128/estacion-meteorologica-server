@@ -29,6 +29,7 @@ async function updateMeasurements() {
         const humidities = results[1]?.data;
 
         if (temperatures && temperatures.length > 0) {
+            let html = "";
             let total = 0.0;
             let minValue = temperatures[0]?.value ?? 999;
             let maxValue = temperatures[0]?.value ?? -999;
@@ -37,14 +38,16 @@ async function updateMeasurements() {
                 if (minValue > elem.value) minValue = elem.value;
                 if (maxValue < elem.value) maxValue = elem.value;
                 total += elem.value;
-                temperatureDisplay.innerHTML += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
+                html += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
             }
+            temperatureDisplay.innerHTML = html;
             tempAvgElem.textContent = (total / temperatures.length).toFixed(2);
             tempMinElem.textContent = minValue.toFixed(2);
             tempMaxElem.textContent = maxValue.toFixed(2);
         }
 
         if (humidities && humidities.length > 0) {
+            let html = "";
             let total = 0.0;
             let minValue = humidities[1]?.value ?? 999;
             let maxValue = humidities[1]?.value ?? -999;
@@ -53,8 +56,9 @@ async function updateMeasurements() {
                 if (minValue > elem.value) minValue = elem.value;
                 if (maxValue < elem.value) maxValue = elem.value;
                 total += parseFloat(elem.value);
-                humidityDisplay.innerHTML += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
+                html += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
             }
+            humidityDisplay.innerHTML = html;
             rhAvgElem.textContent = (total / humidities.length).toFixed(2);
             rhMinElem.textContent = minValue.toFixed(2);
             rhMaxElem.textContent = maxValue.toFixed(2);
