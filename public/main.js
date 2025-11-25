@@ -1,72 +1,73 @@
-const counter = document.getElementById("ping");
-
-const temperatureDisplay = document.getElementById("tempBody");
-const tempAvgElem = document.getElementById("tempAvg");
-const tempMinElem = document.getElementById("tempMin");
-const tempMaxElem = document.getElementById("tempMax");
-
-const humidityDisplay = document.getElementById("rhBody");
-const rhAvgElem = document.getElementById("rhAvg");
-const rhMinElem = document.getElementById("rhMin");
-const rhMaxElem = document.getElementById("rhMax");
 
 window.onload = start;
 
 async function start() {
-    handleInterval(updateMeasurements, 5000);
+    const humidityData = {
+        name: "humidity",
+        path: "/measurements/humidity",
+        interval: 10000,
+        displayNode: document.getElementById("rhBody"),
+        avgNode: document.getElementById("rhAvg"),
+        minNode: document.getElementById("rhMin"),
+        maxNode: document.getElementById("rhMax"),
+    };
+
+    const temperatureData = {
+        name: "temperature",
+        path: "/measurements/temperature",
+        interval: 10000,
+        displayNode: document.getElementById("tempBody"),
+        avgNode: document.getElementById("tempAvg"),
+        minNode: document.getElementById("tempMin"),
+        maxNode: document.getElementById("tempMax"),
+    };
+
     handleInterval(updatePing, 1000);
+    handleInterval(updateMeasurement(humidityData), humidityData.interval);
+    handleInterval(updateMeasurement(temperatureData), temperatureData.interval);
 }
 
-async function updateMeasurements() {
-    console.log("Updating measurements...");
-    try {
-        const results = await Promise.all([
-            fetch("/measurements/temperature").then(res => res.json()),
-            fetch("/measurements/humidity").then(res => res.json()),
-        ]).catch(e => { throw e });
+function updateMeasurement(options) {
+    if (!options?.name || !options?.path) {
+        console.error("Invalid options for updateMeasurement");
+        return;
+    }
+    if (!options?.interval || isNaN(options.interval) || options.interval < 1000) {
+        console.error("Invalid interval for updateMeasurement, setting to 5000ms");
+        options.interval = 5000;
+    }
+    if (!options?.displayNode || !options?.avgNode || !options?.minNode || !options?.maxNode) {
+        console.error("Invalid display nodes for updateMeasurement");
+        return;
+    }
 
-        const temperatures = results[0]?.data;
-        const humidities = results[1]?.data;
-
-        if (temperatures && temperatures.length > 0) {
-            let html = "";
-            let total = 0.0;
-            let minValue = temperatures[0]?.value ?? 999;
-            let maxValue = temperatures[0]?.value ?? -999;
-            for (let i = temperatures.length - 1; i >= 0; i--) {
-                const elem = temperatures[i];
-                if (minValue > elem.value) minValue = elem.value;
-                if (maxValue < elem.value) maxValue = elem.value;
-                total += elem.value;
-                html += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
+    return async function() {
+        console.log("Updating measurement data for " + options.name);
+        try {
+            const result = await fetch(options.path).then(res => res.json()).catch(e => { throw e });
+            if (!result?.data || result.data.length === 0) {
+                throw new Error("No data received for " + options.name);
             }
-            temperatureDisplay.innerHTML = html;
-            tempAvgElem.textContent = (total / temperatures.length).toFixed(2);
-            tempMinElem.textContent = minValue.toFixed(2);
-            tempMaxElem.textContent = maxValue.toFixed(2);
-        }
 
-        if (humidities && humidities.length > 0) {
+            const samples = result.data;
             let html = "";
-            let total = 0.0;
-            let minValue = humidities[1]?.value ?? 999;
-            let maxValue = humidities[1]?.value ?? -999;
-            for (let i = humidities.length - 1; i >= 0; i--) {
-                const elem = humidities[i];
+            let total = 0.0, minValue = samples[0]?.value ?? 9999, maxValue = samples[0]?.value ?? -9999;
+            for (let i = samples.length - 1; i >= 0; i--) {
+                const elem = samples[i];
                 if (minValue > elem.value) minValue = elem.value;
                 if (maxValue < elem.value) maxValue = elem.value;
                 total += parseFloat(elem.value);
                 html += `<tr><td>${elem.timestamp}</td> <td>${elem.host}</td> <td>${elem.value}</td></tr>`;
             }
-            humidityDisplay.innerHTML = html;
-            rhAvgElem.textContent = (total / humidities.length).toFixed(2);
-            rhMinElem.textContent = minValue.toFixed(2);
-            rhMaxElem.textContent = maxValue.toFixed(2);
-        }
 
-    } catch (e) {
-        console.error(e);
-        clearInterval(window[`_updateMeasurements_interval`]);
+            options.displayNode.innerHTML = html;
+            options.avgNode.textContent = (total / samples.length).toFixed(2);
+            options.minNode.textContent = minValue.toFixed(2);
+            options.maxNode.textContent = maxValue.toFixed(2);
+        } catch (e) {
+            console.error("Error trying to update mesasurement data", e);
+            clearInterval(window[`_updateMeasurement_${options.name}_interval`]);
+        }
     }
 }
 
@@ -76,6 +77,7 @@ async function handleInterval(callback, time) {
 }
 
 async function updatePing() {
+    const counter = document.getElementById("ping");
     try {
         const res = await fetch("/ping");
         if (!res.ok) {
