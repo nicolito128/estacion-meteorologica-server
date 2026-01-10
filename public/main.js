@@ -2,10 +2,12 @@
 window.onload = start;
 
 async function start() {
+    const defaultInterval = 15000;
+
     const humidityData = {
         name: "humidity",
         path: "/measurements/humidity",
-        interval: 10000,
+        interval: defaultInterval,
         displayNode: document.getElementById("rhBody"),
         avgNode: document.getElementById("rhAvg"),
         minNode: document.getElementById("rhMin"),
@@ -15,16 +17,71 @@ async function start() {
     const temperatureData = {
         name: "temperature",
         path: "/measurements/temperature",
-        interval: 10000,
+        interval: defaultInterval,
         displayNode: document.getElementById("tempBody"),
         avgNode: document.getElementById("tempAvg"),
         minNode: document.getElementById("tempMin"),
         maxNode: document.getElementById("tempMax"),
     };
 
+    const precipitationData = {
+        name: "precipitation",
+        path: "/measurements/precipitation",
+        interval: defaultInterval,
+        displayNode: document.getElementById("precipBody"),
+        avgNode: document.getElementById("precipAvg"),
+        minNode: document.getElementById("precipMin"),
+        maxNode: document.getElementById("precipMax"),
+    };
+
+    const windSpeedData = {
+        name: "wind-speed",
+        path: "/measurements/wind-speed",
+        interval: defaultInterval,
+        displayNode: document.getElementById("windBody"),
+        avgNode: document.getElementById("windAvg"),
+        minNode: document.getElementById("windMin"),
+        maxNode: document.getElementById("windMax"),
+    };
+
+    const seaLevelData = {
+        name: "sea-level",
+        path: "/measurements/sea-level",
+        interval: defaultInterval,
+        displayNode: document.getElementById("seaLevelBody"),
+        avgNode: document.getElementById("seaLevelAvg"),
+        minNode: document.getElementById("seaLevelMin"),
+        maxNode: document.getElementById("seaLevelMax"),
+    };
+
+    const pressureData = {
+        name: "pressure",
+        path: "/measurements/pressure",
+        interval: defaultInterval,
+        displayNode: document.getElementById("pressBody"),
+        avgNode: document.getElementById("pressAvg"),
+        minNode: document.getElementById("pressMin"),
+        maxNode: document.getElementById("pressMax"),
+    };
+
+    const uvData = {
+        name: "uv",
+        path: "/measurements/uv",
+        interval: defaultInterval,
+        displayNode: document.getElementById("uvBody"),
+        avgNode: document.getElementById("uvAvg"),
+        minNode: document.getElementById("uvMin"),
+        maxNode: document.getElementById("uvMax"),
+    };
+
     handleInterval(updatePing, 1000);
     handleInterval(updateMeasurement(humidityData), humidityData.interval);
     handleInterval(updateMeasurement(temperatureData), temperatureData.interval);
+    handleInterval(updateMeasurement(precipitationData), precipitationData.interval);
+    handleInterval(updateMeasurement(windSpeedData), windSpeedData.interval);
+    handleInterval(updateMeasurement(seaLevelData), seaLevelData.interval);
+    handleInterval(updateMeasurement(pressureData), pressureData.interval);
+    handleInterval(updateMeasurement(uvData), uvData.interval);
 }
 
 function updateMeasurement(options) {
@@ -72,8 +129,10 @@ function updateMeasurement(options) {
 }
 
 async function handleInterval(callback, time) {
-    callback();
-    window[`_${callback.name}_interval`] = setInterval(callback, time);
+    if (typeof callback === 'function') {
+        callback();
+        window[`_${callback.name}_interval_${Math.random()}`] = setInterval(callback, time);
+    }
 }
 
 async function updatePing() {

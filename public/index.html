@@ -11,11 +11,13 @@
             max-height: 300px;
             width: 100%;
             display: inline-block;
+            margin-bottom: 20px;
         }
 
         table {
             border: 1px solid gray;
             width: 100%;
+            border-collapse: collapse;
         }
 
         th,
@@ -25,6 +27,15 @@
             width: 33%;
             padding: 5px;
         }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .display-section {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -32,7 +43,7 @@
     <h1>Estación Meteorológica Sirolli (Gral. Güemes)</h1>
 
     <p>
-        Uptime: <span id="ping">00:00:00</span>
+        <strong>Uptime:</strong> <span id="ping">00:00:00</span>
     </p>
 
     <section id="tempSection" class="display-section">
@@ -42,16 +53,12 @@
             Minimo registrado: <span id="tempMin">--</span> °C |
             Máximo registrado: <span id="tempMax">--</span> °C
         </p>
-
         <div class="table-container">
             <table id="tempTable">
                 <thead>
-                    <th>Tiempo</th>
-                    <th>Host</th>
-                    <th>°C</th>
+                    <tr><th>Tiempo</th><th>Host</th><th>°C</th></tr>
                 </thead>
-                <tbody id="tempBody">
-                </tbody>
+                <tbody id="tempBody"></tbody>
             </table>
         </div>
     </section>
@@ -63,15 +70,97 @@
             Minimo registrado: <span id="rhMin">--</span> %RH |
             Máximo registrado: <span id="rhMax">--</span> %RH
         </p>
-
         <div class="table-container">
             <table id="rhTable">
                 <thead>
-                    <th>Tiempo</th>
-                    <th>Host</th>
-                    <th>RH%</th>
+                    <tr><th>Tiempo</th><th>Host</th><th>RH%</th></tr>
                 </thead>
                 <tbody id="rhBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="precipSection" class="display-section">
+        <h2>Precipitación</h2>
+        <p>
+            Promedio actual: <span id="precipAvg">--</span> mm |
+            Minimo registrado: <span id="precipMin">--</span> mm |
+            Máximo registrado: <span id="precipMax">--</span> mm
+        </p>
+        <div class="table-container">
+            <table id="precipTable">
+                <thead>
+                    <tr><th>Tiempo</th><th>Host</th><th>mm</th></tr>
+                </thead>
+                <tbody id="precipBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="windSection" class="display-section">
+        <h2>Velocidad del Viento</h2>
+        <p>
+            Promedio actual: <span id="windAvg">--</span> km/h |
+            Minimo registrado: <span id="windMin">--</span> km/h |
+            Máximo registrado: <span id="windMax">--</span> km/h
+        </p>
+        <div class="table-container">
+            <table id="windTable">
+                <thead>
+                    <tr><th>Tiempo</th><th>Host</th><th>km/h</th></tr>
+                </thead>
+                <tbody id="windBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="seaSection" class="display-section">
+        <h2>Nivel del Mar</h2>
+        <p>
+            Promedio actual: <span id="seaLevelAvg">--</span> m |
+            Minimo registrado: <span id="seaLevelMin">--</span> m |
+            Máximo registrado: <span id="seaLevelMax">--</span> m
+        </p>
+        <div class="table-container">
+            <table id="seaLevelTable">
+                <thead>
+                    <tr><th>Tiempo</th><th>Host</th><th>m</th></tr>
+                </thead>
+                <tbody id="seaLevelBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="pressSection" class="display-section">
+        <h2>Presión Atmosférica</h2>
+        <p>
+            Promedio actual: <span id="pressAvg">--</span> hPa |
+            Minimo registrado: <span id="pressMin">--</span> hPa |
+            Máximo registrado: <span id="pressMax">--</span> hPa
+        </p>
+        <div class="table-container">
+            <table id="pressTable">
+                <thead>
+                    <tr><th>Tiempo</th><th>Host</th><th>hPa</th></tr>
+                </thead>
+                <tbody id="pressBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="uvSection" class="display-section">
+        <h2>Índice UV</h2>
+        <p>
+            Promedio actual: <span id="uvAvg">--</span> |
+            Minimo registrado: <span id="uvMin">--</span> |
+            Máximo registrado: <span id="uvMax">--</span>
+        </p>
+        <div class="table-container">
+            <table id="uvTable">
+                <thead>
+                    <tr><th>Tiempo</th><th>Host</th><th>Índice</th></tr>
+                </thead>
+                <tbody id="uvBody"></tbody>
             </table>
         </div>
     </section>
