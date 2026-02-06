@@ -9,6 +9,6 @@ COPY . .
 
 RUN go build -o app .
 
-EXPOSE 5000
+EXPOSE 8080
 
-CMD ["./app", "-addr" "5000"]
+CMD ["./app"]
