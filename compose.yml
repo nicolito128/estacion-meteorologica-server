@@ -5,6 +5,6 @@ services:
       dockerfile: Containerfile
     ports:
       - "5000:5000"
+    volumes:
+      - ./data:/server/data
 
-volumes:
-  data:
