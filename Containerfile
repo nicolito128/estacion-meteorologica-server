@@ -6,7 +6,7 @@ WORKDIR $DIR
 
 FROM base AS builder
 
-COPY go.mod go.sum *.go ./
+COPY go.mod *.go ./
 
 RUN go mod download
 
