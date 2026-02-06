@@ -10,19 +10,24 @@ Servidor para el proyecto de Estación Meteorológica del Sirolli
 
 - [air](https://github.com/air-verse/air)
 
-## Arquitectura
-
-Arquitectura del servidor y los endpoints.
-
 ## Ejecutar
 
-Cómo ejecutar el servidor.
+Teniendo instalado Go, ejecutar:
+
+    go build -o app .
+    ./app
+
+De forma alternativa, usando `Podman` (o en su defecto Docker):
+
+    podman-compose up -d
 
 ## Agradecimientos
 
-Agradecimientos.
+A nuestro profesor Eduardo Gomez por apoyarnos en todo el proceso de creación de la estación meteorológica.
 
 ## Referencias
 
-Listar referencias útiles.
+* [Go net/http](https://pkg.go.dev/net/http)
+* [Go Documentation](https://go.dev/doc/)
+* [HTTP -Hypertext Transfer Protocol](https://www.w3.org/Protocols/Overview)
 
