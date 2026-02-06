@@ -1,0 +1,10 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Containerfile
+    ports:
+      - "5000:5000"
+
+volumes:
+  data:
