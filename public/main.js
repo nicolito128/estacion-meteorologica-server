@@ -24,16 +24,6 @@ async function start() {
         maxNode: document.getElementById("tempMax"),
     };
 
-    /*const precipitationData = {
-        name: "precipitation",
-        path: "/measurements/precipitation",
-        interval: defaultInterval,
-        displayNode: document.getElementById("precipBody"),
-        avgNode: document.getElementById("precipAvg"),
-        minNode: document.getElementById("precipMin"),
-        maxNode: document.getElementById("precipMax"),
-    };*/
-
     const windSpeedData = {
         name: "wind-speed",
         path: "/measurements/wind-speed",
