@@ -77,7 +77,6 @@ async function start() {
     handleInterval(updatePing, 1000);
     handleInterval(updateMeasurement(humidityData), humidityData.interval);
     handleInterval(updateMeasurement(temperatureData), temperatureData.interval);
-    handleInterval(updateMeasurement(precipitationData), precipitationData.interval);
     handleInterval(updateMeasurement(windSpeedData), windSpeedData.interval);
     handleInterval(updateMeasurement(seaLevelData), seaLevelData.interval);
     handleInterval(updateMeasurement(pressureData), pressureData.interval);
